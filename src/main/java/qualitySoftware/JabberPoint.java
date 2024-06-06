@@ -13,7 +13,7 @@ import java.io.IOException;
 
 /** JabberPoint Main Programma
  * <p>This program is distributed under the terms of the accompanyings
- * COPYRIGHT.txt file (which is NOT the GNU General Public License).
+ * COPYRIGHT.txt file (which is NOT the GNU General Public License).ss
  * Please read it. Your use of the software constitutes acceptance
  * of the terms in the COPYRIGHT.txt file.</p>
  * @author Ian F. Darwin, ian@darwinsys.com, Gert Florijn, Sylvia Stuurman
