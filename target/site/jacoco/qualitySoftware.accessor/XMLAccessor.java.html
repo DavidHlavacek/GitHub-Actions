@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>XMLAccessor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JabberPoint</a> &gt; <a href="index.source.html" class="el_package">qualitySoftware.accessor</a> &gt; <span class="el_source">XMLAccessor.java</span></div><h1>XMLAccessor.java</h1><pre class="source lang-java linenums">package qualitySoftware.accessor;
+
+import java.awt.*;
+import java.io.*;
+import java.util.Vector;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
+import qualitySoftware.creator.SlideItemCreator;
+import qualitySoftware.decorator.BorderedItemDecorator;
+import qualitySoftware.decorator.ShadowedItemDecorator;
+import qualitySoftware.decorator.SlideItemDecorator;
+import qualitySoftware.presentation.Presentation;
+import qualitySoftware.presentation.Slide;
+import qualitySoftware.slide.SlideItem;
+
+
+/** XMLAccessor, reads and writes XML files
+ * @author Ian F. Darwin, ian@darwinsys.com, Gert Florijn, Sylvia Stuurman
+ * @version 1.1 2002/12/17 Gert Florijn
+ * @version 1.2 2003/11/19 Sylvia Stuurman
+ * @version 1.3 2004/08/17 Sylvia Stuurman
+ * @version 1.4 2007/07/16 Sylvia Stuurman
+ * @version 1.5 2010/03/03 Sylvia Stuurman
+ * @version 1.6 2014/05/16 Sylvia Stuurman
+ */
+
+<span class="nc" id="L32">public class XMLAccessor extends Accessor</span>
+{
+
+	/** Default API to use. */
+    protected static final String DEFAULT_API_TO_USE = &quot;dom&quot;;
+    
+    /** namen van xml tags of attributen */
+    protected static final String SHOWTITLE = &quot;showtitle&quot;;
+    protected static final String SLIDETITLE = &quot;title&quot;;
+    protected static final String SLIDE = &quot;slide&quot;;
+    protected static final String ITEM = &quot;item&quot;;
+    protected static final String LEVEL = &quot;level&quot;;
+    protected static final String KIND = &quot;kind&quot;;
+    protected static final String TEXT = &quot;text&quot;;
+    protected static final String IMAGE = &quot;image&quot;;
+    
+    /** tekst van messages */
+    protected static final String PCE = &quot;Parser Configuration Exception&quot;;
+    protected static final String UNKNOWNTYPE = &quot;Unknown Element type&quot;;
+    protected static final String NFE = &quot;Number Format Exception&quot;;
+    
+    // get element title from the attributes
+    private String getTitle(Element element, String tagName) {
+<span class="nc" id="L55">		NodeList titles = element.getElementsByTagName(tagName);</span>
+<span class="nc" id="L56">		return titles.item(0).getTextContent();</span>
+
+	}
+
+	public Element loadFile(String filename) throws IOException
+	{
+		try {
+			// Create the basic document
+<span class="nc" id="L64">			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();</span>
+<span class="nc" id="L65">			Document document = builder.parse(new File(filename)); // Create a JDOM document</span>
+<span class="nc" id="L66">			Element doc = document.getDocumentElement();</span>
+<span class="nc" id="L67">			return doc;</span>
+<span class="nc" id="L68">		} catch (IOException iox) {</span>
+<span class="nc" id="L69">			System.err.println(iox.toString());</span>
+<span class="nc" id="L70">		} catch (SAXException sax) {</span>
+<span class="nc" id="L71">			System.err.println(sax.getMessage());</span>
+<span class="nc" id="L72">		} catch (ParserConfigurationException pcx) {</span>
+<span class="nc" id="L73">			System.err.println(PCE);</span>
+<span class="nc" id="L74">		}</span>
+<span class="nc" id="L75">		return null;</span>
+	}
+
+	public void loadFile(Presentation targetPres, String fileFrom) throws IOException {
+<span class="nc" id="L79">		Element doc = this.loadFile(fileFrom);</span>
+		// create a presentation title from &lt;title&gt;
+<span class="nc" id="L81">		targetPres.setTitle(this.getTitle(doc, SHOWTITLE));</span>
+<span class="nc" id="L82">		NodeList xmlSlides = doc.getElementsByTagName(SLIDE);</span>
+
+		// go through each &lt;slide&gt; tag and plug them into the presentation
+<span class="nc bnc" id="L85" title="All 2 branches missed.">		for (int slideIndex = 0; slideIndex &lt; xmlSlides.getLength(); slideIndex++) {</span>
+<span class="nc" id="L86">			Element xmlSlide = (Element) xmlSlides.item(slideIndex);</span>
+<span class="nc" id="L87">			Slide slide = new Slide();</span>
+<span class="nc" id="L88">			this.loadSlide(slide, xmlSlide);</span>
+<span class="nc" id="L89">			targetPres.append(slide);</span>
+		}
+<span class="nc" id="L91">	}</span>
+
+	protected void loadSlide(Slide slide, Element xmlSlide) {
+<span class="nc" id="L94">		slide.setTitle(this.getTitle(xmlSlide, SLIDETITLE));</span>
+		// Recursively traverse all descendant nodes of xmlSlide
+<span class="nc" id="L96">		loadSlideComponents(slide, xmlSlide.getChildNodes(), null);</span>
+<span class="nc" id="L97">	}</span>
+
+	protected void loadSlideComponents(Slide slide, NodeList nodeList, SlideItemDecorator lastWrapper)
+	{
+<span class="nc" id="L101">		SlideItemDecorator lastEmptyWrapper = lastWrapper;</span>
+
+<span class="nc bnc" id="L103" title="All 2 branches missed.">		for (int index = 0; index &lt; nodeList.getLength(); index++) {</span>
+<span class="nc" id="L104">			Node node = nodeList.item(index);</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">			if (node.getNodeType() != Node.ELEMENT_NODE) {</span>
+<span class="nc" id="L106">				continue;</span>
+			}
+<span class="nc" id="L108">			Element element = (Element) node;</span>
+<span class="nc" id="L109">			String tagName = element.getTagName();</span>
+
+<span class="nc bnc" id="L111" title="All 2 branches missed.">			if (&quot;wrap&quot;.equals(tagName)) {</span>
+<span class="nc" id="L112">				SlideItemDecorator emptyWrap = this.wrapperFromXML(element);</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">				if (lastEmptyWrapper != null) {</span>
+<span class="nc" id="L114">					lastEmptyWrapper.setWrappee(emptyWrap);</span>
+				}
+<span class="nc" id="L116">				lastEmptyWrapper = emptyWrap;</span>
+<span class="nc" id="L117">				this.loadSlideComponents(slide, element.getChildNodes(), lastEmptyWrapper);</span>
+<span class="nc" id="L118">				lastEmptyWrapper = null; // clear the wrapper, since wrapper will always have a text item in it, so it will always be bound to something</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">			} else if (&quot;item&quot;.equals(tagName)) {</span>
+<span class="nc" id="L120">				SlideItem item = itemFromXML(element);</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">				if (lastEmptyWrapper != null) {</span>
+<span class="nc" id="L122">					lastEmptyWrapper.setWrappee(item);</span>
+<span class="nc" id="L123">					slide.append(lastEmptyWrapper);</span>
+<span class="nc" id="L124">					lastEmptyWrapper = null;</span>
+				}
+				else {
+<span class="nc" id="L127">					slide.append(item);</span>
+				}
+			}
+		}
+<span class="nc" id="L131">	}</span>
+
+
+	// load the presentation file
+	/*
+	public void loadFile(Presentation presentation, String filename) throws IOException {
+		int slideNumber, itemNumber, max = 0, maxItems = 0;
+		try {
+			// set up file handling
+			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			Document document = builder.parse(new File(filename)); // Create a JDOM document
+			Element doc = document.getDocumentElement();
+
+			// set pres title
+			presentation.setTitle(getTitle(doc, SHOWTITLE));
+
+			// load all the slides
+			NodeList slides = doc.getElementsByTagName(SLIDE);
+			max = slides.getLength();
+			for (slideNumber = 0; slideNumber &lt; max; slideNumber++) {
+				Element xmlSlide = (Element) slides.item(slideNumber);
+				Slide slide = new Slide();
+				this.loadSlide(slide, xmlSlide);
+				presentation.append(slide);
+
+			}
+		} catch (FileNotFoundException exc) {
+			throw exc;
+		} catch (IOException iox) {
+			System.err.println(iox.toString());
+		} catch (SAXException sax) {
+			System.err.println(sax.getMessage());
+		} catch (ParserConfigurationException pcx) {
+			System.err.println(PCE);
+		}
+	}
+	 */
+
+	/*
+	protected void loadSlide(Slide slide, Element xmlSlide) {
+		slide.setTitle(this.getTitle(xmlSlide, SLIDETITLE));
+
+		NodeList slideComponents = xmlSlide.getChildNodes();
+		SlideItemDecorator lastEmptyWrapper = null;
+
+		for (int index = 0; index &lt; slideComponents.getLength(); index++) {
+			Node node = slideComponents.item(index);
+			if (node.getNodeType() != Node.ELEMENT_NODE) {
+				// some elements are not xml elements, so we should skip those
+				continue;
+			}
+			Element item = (Element) slideComponents.item(index);
+			SlideItem result = null;
+			switch (item.getTagName()) {
+				case &quot;wrap&quot;:
+					result = wrapperFromXML(item);
+					if (result != null) {
+						if (lastEmptyWrapper != null) {
+							lastEmptyWrapper.setWrappee(result);
+						}
+						lastEmptyWrapper = (SlideItemDecorator) result;
+					}
+					break;
+				case &quot;item&quot;:
+					result = itemFromXML(item);
+					if (lastEmptyWrapper != null) {
+						lastEmptyWrapper.setWrappee(result);
+						lastEmptyWrapper = null;
+					}
+					break;
+			}
+			if (result != null) {
+				slide.append(result);
+			}
+		}
+        /*
+		try {
+			slide.setTitle(getTitle(xmlSlide, SLIDETITLE));
+
+			NodeList slideItems = xmlSlide.getElementsByTagName(ITEM);
+			int maxItems = slideItems.getLength();
+			for (int itemNumber = 0; itemNumber &lt; maxItems; itemNumber++) {
+				Element item = (Element) slideItems.item(itemNumber);
+				loadSlideItem(slide, item);
+			}
+		} catch (Exception exc) {
+			throw exc;
+		}
+	}
+	 */
+
+	protected SlideItemDecorator wrapperFromXML(Element xmlWrapper) {
+<span class="nc" id="L223">		SlideItemDecorator wrapper = null;</span>
+<span class="nc" id="L224">		NamedNodeMap wrapperAttributes = xmlWrapper.getAttributes();</span>
+<span class="nc" id="L225">		String wrapperType = wrapperAttributes.getNamedItem(KIND).getTextContent();</span>
+
+<span class="nc" id="L227">		Color color = Color.BLACK;</span>
+<span class="nc" id="L228">		String colorTxt = wrapperAttributes.getNamedItem(&quot;color&quot;).getTextContent();</span>
+
+		try {
+<span class="nc" id="L231">			color = Color.decode(colorTxt);</span>
+<span class="nc" id="L232">		} catch (NumberFormatException | NullPointerException ex) {</span>
+			// Handle parsing error or null color
+<span class="nc" id="L234">			ex.printStackTrace();</span>
+<span class="nc" id="L235">		}</span>
+
+<span class="nc bnc" id="L237" title="All 2 branches missed.">		if (wrapperType.equals(&quot;shadow&quot;)) {</span>
+<span class="nc" id="L238">			int thickness = 1;</span>
+<span class="nc" id="L239">			String thicknessTxt = wrapperAttributes.getNamedItem(&quot;thickness&quot;).getTextContent();</span>
+			try {
+<span class="nc" id="L241">				thickness = Integer.parseInt(thicknessTxt);</span>
+<span class="nc" id="L242">			} catch (NumberFormatException | NullPointerException ex) {</span>
+				// Handle parsing error or null thickness
+<span class="nc" id="L244">				ex.printStackTrace();</span>
+<span class="nc" id="L245">			}</span>
+<span class="nc bnc" id="L246" title="All 4 branches missed.">			if (color != null &amp;&amp; thickness != 0) {</span>
+<span class="nc" id="L247">				wrapper = new ShadowedItemDecorator(null, color, thickness);</span>
+			}
+<span class="nc bnc" id="L249" title="All 2 branches missed.">		} else if (wrapperType.equals(&quot;border&quot;)) {</span>
+<span class="nc bnc" id="L250" title="All 2 branches missed.">			if (color != null) {</span>
+<span class="nc" id="L251">				wrapper = new BorderedItemDecorator(null, color);</span>
+			}
+		}
+<span class="nc" id="L254">		return wrapper;</span>
+	}
+
+	protected SlideItem itemFromXML(Element xmlItem) {
+<span class="nc" id="L258">		int level = 1;</span>
+		// check if the item has specified a level
+<span class="nc" id="L260">		NamedNodeMap attributes = xmlItem.getAttributes();</span>
+<span class="nc" id="L261">		String leveltext = attributes.getNamedItem(LEVEL).getTextContent();</span>
+<span class="nc bnc" id="L262" title="All 2 branches missed.">		if (leveltext != null) {</span>
+			// if so, try to parse it and set it as the level if it is valid
+			try {
+<span class="nc" id="L265">				level = Integer.parseInt(leveltext);</span>
+<span class="nc" id="L266">			} catch(NumberFormatException x) {</span>
+<span class="nc" id="L267">				System.err.println(NFE);</span>
+<span class="nc" id="L268">			}</span>
+		}
+		// getting item type, checking if its text or image or invalid, creating corresponding item
+<span class="nc" id="L271">		String type = attributes.getNamedItem(KIND).getTextContent();</span>
+<span class="nc" id="L272">		SlideItem slideItem = SlideItemCreator.createSlideItem(type, level, xmlItem.getTextContent());</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">		if (slideItem == null) {</span>
+<span class="nc" id="L274">			System.err.println(UNKNOWNTYPE);</span>
+<span class="nc" id="L275">			return null;</span>
+		}
+<span class="nc" id="L277">		return slideItem;</span>
+	}
+
+	// loads a single slide item
+	protected void loadSlideItem(Slide slide, Element item) {
+		// set the default level to 1
+<span class="nc" id="L283">		int level = 1;</span>
+
+		// check if the item has specified a level
+<span class="nc" id="L286">		NamedNodeMap attributes = item.getAttributes();</span>
+<span class="nc" id="L287">		String leveltext = attributes.getNamedItem(LEVEL).getTextContent();</span>
+<span class="nc bnc" id="L288" title="All 2 branches missed.">		if (leveltext != null) {</span>
+			// if so, try to parse it and set it as the level if it is valid
+			try {
+<span class="nc" id="L291">				level = Integer.parseInt(leveltext);</span>
+<span class="nc" id="L292">			} catch(NumberFormatException x) {</span>
+<span class="nc" id="L293">				System.err.println(NFE);</span>
+<span class="nc" id="L294">			}</span>
+		}
+
+		// Check if the item is wrapped
+<span class="nc" id="L298">		NodeList wrapList = item.getElementsByTagName(&quot;wrap&quot;);</span>
+<span class="nc bnc" id="L299" title="All 2 branches missed.">		if (wrapList.getLength() &gt; 0) {</span>
+			// If wrapped, apply decorators
+<span class="nc" id="L301">			Element wrapElement = (Element) wrapList.item(0);</span>
+<span class="nc" id="L302">			String borderColor = wrapElement.getAttribute(&quot;borderColor&quot;);</span>
+<span class="nc" id="L303">			String borderWidth = wrapElement.getAttribute(&quot;borderWidth&quot;);</span>
+<span class="nc" id="L304">			String shadowColor = wrapElement.getAttribute(&quot;shadowColor&quot;);</span>
+<span class="nc" id="L305">			String shadowThickness = wrapElement.getAttribute(&quot;shadowThickness&quot;);</span>
+
+<span class="nc" id="L307">			SlideItem wrappedItem = null; // Initialize the wrapped item</span>
+
+			// Apply border decorator if borderColor and borderWidth are provided
+<span class="nc bnc" id="L310" title="All 4 branches missed.">			if (!borderColor.isEmpty() &amp;&amp; !borderWidth.isEmpty()) {</span>
+<span class="nc" id="L311">				wrappedItem = new BorderedItemDecorator(wrappedItem, Color.decode(borderColor));</span>
+			}
+
+			// Apply shadow decorator if shadowColor and shadowThickness are provided
+<span class="nc bnc" id="L315" title="All 4 branches missed.">			if (!shadowColor.isEmpty() &amp;&amp; !shadowThickness.isEmpty()) {</span>
+<span class="nc" id="L316">				ShadowedItemDecorator shadowDecorator = new ShadowedItemDecorator(wrappedItem, Color.decode(shadowColor), Integer.parseInt(shadowThickness));</span>
+				// If the item is already decorated with a border, set the shadow decorator as its wrappee
+<span class="nc bnc" id="L318" title="All 2 branches missed.">				if (wrappedItem != null) {</span>
+<span class="nc" id="L319">					shadowDecorator.setWrappee(wrappedItem);</span>
+				}
+<span class="nc" id="L321">				wrappedItem = shadowDecorator;</span>
+			}
+
+			// Recursively process nested wrap elements
+<span class="nc bnc" id="L325" title="All 2 branches missed.">			if (wrappedItem != null) {</span>
+				// Get the nested item inside the wrap
+<span class="nc" id="L327">				Element nestedItem = (Element) wrapElement.getElementsByTagName(&quot;item&quot;).item(0);</span>
+				// Load the nested item
+<span class="nc" id="L329">				loadSlideItem(slide, nestedItem);</span>
+				// Append the wrapped item to the slide
+<span class="nc" id="L331">				slide.append(wrappedItem);</span>
+			}
+<span class="nc" id="L333">		} else {</span>
+			// If not wrapped, load the item normally
+<span class="nc" id="L335">			String type = attributes.getNamedItem(KIND).getTextContent();</span>
+<span class="nc" id="L336">			SlideItem slideItem = SlideItemCreator.createSlideItem(type, level, item.getTextContent());</span>
+<span class="nc bnc" id="L337" title="All 2 branches missed.">			if (slideItem == null) {</span>
+<span class="nc" id="L338">				System.err.println(UNKNOWNTYPE);</span>
+			} else {
+<span class="nc" id="L340">				slide.append(slideItem);</span>
+			}
+		}
+<span class="nc" id="L343">	}</span>
+
+    /*
+	protected void loadSlideItem(Slide slide, Element item) {
+		// set the default level to 1
+		int level = 1;
+
+		// check if the item has specified a level
+		NamedNodeMap attributes = item.getAttributes();
+		String leveltext = attributes.getNamedItem(LEVEL).getTextContent();
+		if (leveltext != null) {
+			// if so, try to parse it and set it as the level if it is valid
+			try {
+				level = Integer.parseInt(leveltext);
+			} catch(NumberFormatException x) {
+				System.err.println(NFE);
+			}
+		}
+		// getting item type, checking if its text or image or invalid, creating corresponding item
+		String type = attributes.getNamedItem(KIND).getTextContent();
+		SlideItem slideItem = SlideItemCreator.createSlideItem(type, level, item.getTextContent());
+		if (slideItem == null) {
+			System.err.println(UNKNOWNTYPE);
+		} else {
+			slide.append(slideItem);
+		}
+	}
+	 */
+
+	// save the presentation in a file
+	public void saveFile(Presentation presentation, String filename) throws IOException {
+<span class="nc" id="L374">		PrintWriter out = new PrintWriter(new FileWriter(filename)); // file handler</span>
+		// heading
+<span class="nc" id="L376">		out.println(&quot;&lt;?xml version=\&quot;1.0\&quot;?&gt;&quot;);</span>
+<span class="nc" id="L377">		out.println(&quot;&lt;!DOCTYPE presentation SYSTEM \&quot;jabberpoint.dtd\&quot;&gt;&quot;);</span>
+<span class="nc" id="L378">		out.println(&quot;&lt;presentation&gt;&quot;);</span>
+<span class="nc" id="L379">		out.print(&quot;&lt;showtitle&gt;&quot;);</span>
+<span class="nc" id="L380">		out.print(presentation.getTitle());</span>
+<span class="nc" id="L381">		out.println(&quot;&lt;/showtitle&gt;&quot;);</span>
+		// slides
+<span class="nc bnc" id="L383" title="All 2 branches missed.">		for (int slideNumber=0; slideNumber&lt;presentation.getSize(); slideNumber++) {</span>
+<span class="nc" id="L384">			Slide slide = presentation.getSlide(slideNumber);</span>
+<span class="nc" id="L385">			this.saveSlide(out, slide);</span>
+		}
+		//ending
+<span class="nc" id="L388">		out.println(&quot;&lt;/presentation&gt;&quot;);</span>
+<span class="nc" id="L389">		out.close();</span>
+<span class="nc" id="L390">	}</span>
+
+	// save a single slide
+	protected void saveSlide(PrintWriter out, Slide slide)
+	{
+		// heading + title
+<span class="nc" id="L396">		out.println(&quot;&lt;slide&gt;&quot;);</span>
+<span class="nc" id="L397">		out.println(&quot;&lt;title&gt;&quot; + slide.getTitle() + &quot;&lt;/title&gt;&quot;);</span>
+<span class="nc" id="L398">		Vector&lt;SlideItem&gt; slideItems = slide.getSlideItems();</span>
+		// iterate over all slide items and save them
+<span class="nc bnc" id="L400" title="All 2 branches missed.">		for (int itemNumber = 0; itemNumber&lt;slideItems.size(); itemNumber++) {</span>
+<span class="nc" id="L401">			SlideItem slideItem = slideItems.elementAt(itemNumber);</span>
+<span class="nc" id="L402">			saveSlideItem(out, slideItem);</span>
+		}
+<span class="nc" id="L404">		out.println(&quot;&lt;/slide&gt;&quot;);</span>
+<span class="nc" id="L405">	}</span>
+
+	// save a single slide item
+	protected void saveSlideItem(PrintWriter out, SlideItem slideItem)
+	{
+		// Delegate the responsibility to the slide items
+<span class="nc" id="L411">		out.println(slideItem.toXML());</span>
+        /*
+		// heading
+		out.print(&quot;&lt;item kind=&quot;);
+		// determine item type
+		if (slideItem instanceof TextItem) {
+			out.print(&quot;\&quot;text\&quot; level=\&quot;&quot; + slideItem.getLevel() + &quot;\&quot;&gt;&quot;);
+			out.print( ( (TextItem) slideItem).getText());
+		} else {
+			if (slideItem instanceof BitmapItem) {
+				out.print(&quot;\&quot;image\&quot; level=\&quot;&quot; + slideItem.getLevel() + &quot;\&quot;&gt;&quot;);
+				out.print( ( (BitmapItem) slideItem).getName());
+			} else {
+				System.out.println(&quot;Ignoring &quot; + slideItem);
+			}
+		}
+		out.println(&quot;&lt;/item&gt;&quot;);
+
+		 */
+<span class="nc" id="L430">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

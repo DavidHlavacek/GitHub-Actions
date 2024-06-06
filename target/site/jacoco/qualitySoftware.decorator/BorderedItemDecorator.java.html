@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BorderedItemDecorator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JabberPoint</a> &gt; <a href="index.source.html" class="el_package">qualitySoftware.decorator</a> &gt; <span class="el_source">BorderedItemDecorator.java</span></div><h1>BorderedItemDecorator.java</h1><pre class="source lang-java linenums">package qualitySoftware.decorator;
+
+import qualitySoftware.presentation.Style;
+import qualitySoftware.slide.SlideItem;
+
+import java.awt.Color;
+import java.awt.Rectangle;
+import java.awt.Graphics;
+import java.awt.image.ImageObserver;
+
+public class BorderedItemDecorator extends SlideItemDecorator
+{
+    private Color borderColor;
+
+    public BorderedItemDecorator(SlideItem wrappee) {
+<span class="nc" id="L16">        super(wrappee);</span>
+<span class="nc" id="L17">        this.borderColor = Color.BLACK;</span>
+<span class="nc" id="L18">    }</span>
+    public BorderedItemDecorator(SlideItem wrappee, Color borderColor) {
+<span class="fc" id="L20">        super(wrappee);</span>
+<span class="fc" id="L21">        this.borderColor = borderColor;</span>
+<span class="fc" id="L22">    }</span>
+
+    public Color getBorderColor()
+    {
+<span class="nc" id="L26">        return borderColor;</span>
+    }
+
+    @Override
+    public Rectangle getBoundingBox(Graphics g, ImageObserver observer, float scale, Style style)
+    {
+<span class="nc" id="L32">        Rectangle boundingBox = super.getBoundingBox(g, observer, scale, style);</span>
+<span class="nc" id="L33">        boundingBox.grow(2, 2);</span>
+<span class="nc" id="L34">        return boundingBox;</span>
+    }
+
+    @Override
+    public void draw(int x, int y, float scale, Graphics g, Style style, ImageObserver observer)
+    {
+<span class="nc" id="L40">        Rectangle boundingBox = getBoundingBox(g, observer, scale, style);</span>
+
+        // Draw the wrapped item first
+<span class="nc" id="L43">        super.draw(x -4, y-4, scale, g, style, observer);</span>
+
+        // Draw the border just outside the bounding box
+<span class="nc" id="L46">        g.setColor(borderColor);</span>
+<span class="nc" id="L47">        g.drawRect(boundingBox.x - 1 + x, boundingBox.y - 1 + y, boundingBox.width + 2, boundingBox.height + 2);</span>
+<span class="nc" id="L48">    }</span>
+
+    @Override
+    public String toXML() {
+<span class="nc" id="L52">        return &quot;&lt;wrap kind=\&quot;border\&quot; color=\&quot;&quot; + this.formatColor(this.getBorderColor()) + &quot;\&quot;&gt;&quot; +</span>
+<span class="nc" id="L53">                this.wrappee.toXML() + &quot;&lt;/wrap&gt;&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -1,0 +1,34 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+JabberPoint,qualitySoftware.slide,BaseSlideItem,7,9,0,0,3,4,2,1,2,1
+JabberPoint,qualitySoftware.slide,TextItem,266,7,16,0,47,3,16,1,8,1
+JabberPoint,qualitySoftware.slide,BitmapItem,133,16,0,0,16,5,6,1,6,1
+JabberPoint,qualitySoftware.presentation,Slide,105,26,2,0,18,10,7,5,6,5
+JabberPoint,qualitySoftware.presentation,Presentation,68,59,7,3,19,20,13,7,8,7
+JabberPoint,qualitySoftware.presentation,Style,141,0,2,0,23,0,11,0,10,0
+JabberPoint,qualitySoftware.presentation,AboutBox,9,0,0,0,3,0,2,0,2,0
+JabberPoint,qualitySoftware.creator,BitmapItemCreator,3,6,0,0,1,1,1,1,1,1
+JabberPoint,qualitySoftware.creator,SlideItemCreator,27,12,6,2,8,3,6,1,2,1
+JabberPoint,qualitySoftware.creator,TextItemCreator,3,6,0,0,1,1,1,1,1,1
+JabberPoint,qualitySoftware.ui,SlideViewerFrame.new WindowAdapter() {...},9,0,0,0,3,0,2,0,2,0
+JabberPoint,qualitySoftware.ui,SlideViewerComponent,128,0,6,0,31,0,8,0,5,0
+JabberPoint,qualitySoftware.ui,MenuController.new ActionListener() {...},13,0,0,0,3,0,2,0,2,0
+JabberPoint,qualitySoftware.ui,KeyController,39,0,4,0,10,0,5,0,3,0
+JabberPoint,qualitySoftware.ui,SlideViewerFrame,207,0,0,0,47,0,4,0,4,0
+JabberPoint,qualitySoftware.ui,MenuController,139,0,2,0,34,0,9,0,8,0
+JabberPoint,qualitySoftware.decorator,ShadowedItemDecorator,109,10,0,0,18,4,5,1,5,1
+JabberPoint,qualitySoftware.decorator,BorderedItemDecorator,89,7,0,0,14,3,5,1,5,1
+JabberPoint,qualitySoftware.decorator,SlideItemDecorator,52,6,0,0,8,3,6,1,6,1
+JabberPoint,qualitySoftware.accessor,XMLAccessor,494,0,50,0,142,0,37,0,12,0
+JabberPoint,qualitySoftware.accessor,Accessor,4,3,0,0,1,2,1,1,1,1
+JabberPoint,qualitySoftware.accessor,DemoPresentation,0,184,0,0,0,42,0,3,0,3
+JabberPoint,qualitySoftware.command,FrameCommand,0,9,0,0,0,4,0,1,0,1
+JabberPoint,qualitySoftware.command,OpenFileCommand,58,0,2,0,15,0,3,0,2,0
+JabberPoint,qualitySoftware.command,SaveFileCommand,51,0,4,0,12,0,4,0,2,0
+JabberPoint,qualitySoftware.command,PreviousSlideCommand,8,0,0,0,4,0,2,0,2,0
+JabberPoint,qualitySoftware.command,NextSlideCommand,8,0,0,0,4,0,2,0,2,0
+JabberPoint,qualitySoftware.command,QuitCommand,6,0,0,0,3,0,2,0,2,0
+JabberPoint,qualitySoftware.command,GotoSlideCommand,13,5,0,0,4,2,1,1,1,1
+JabberPoint,qualitySoftware.command,NewFileCommand,12,0,0,0,5,0,2,0,2,0
+JabberPoint,qualitySoftware.command,AboutBoxCommand,9,0,0,0,4,0,2,0,2,0
+JabberPoint,qualitySoftware.command,PresentationCommand,6,0,0,0,3,0,1,0,1,0
+JabberPoint,qualitySoftware,JabberPoint,54,0,2,0,12,0,3,0,2,0

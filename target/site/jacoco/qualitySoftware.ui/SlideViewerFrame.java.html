@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SlideViewerFrame.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">JabberPoint</a> &gt; <a href="index.source.html" class="el_package">qualitySoftware.ui</a> &gt; <span class="el_source">SlideViewerFrame.java</span></div><h1>SlideViewerFrame.java</h1><pre class="source lang-java linenums">package qualitySoftware.ui;
+
+import qualitySoftware.command.*;
+import qualitySoftware.presentation.Presentation;
+
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowAdapter;
+import javax.swing.JFrame;
+
+/**
+ * &lt;p&gt;The application window for a slideviewcomponent&lt;/p&gt;
+ * @author Ian F. Darwin, ian@darwinsys.com, Gert Florijn, Sylvia Stuurman
+ * @version 1.1 2002/12/17 Gert Florijn
+ * @version 1.2 2003/11/19 Sylvia Stuurman
+ * @version 1.3 2004/08/17 Sylvia Stuurman
+ * @version 1.4 2007/07/16 Sylvia Stuurman
+ * @version 1.5 2010/03/03 Sylvia Stuurman
+ * @version 1.6 2014/05/16 Sylvia Stuurman
+*/
+
+public class SlideViewerFrame extends JFrame {
+	private static final long serialVersionUID = 3227L;
+	
+	private static final String JABTITLE = &quot;Jabberpoint 1.6 - OU&quot;;
+	public final static int WIDTH = 1200;
+	public final static int HEIGHT = 800;
+
+	private MenuController menuController;
+	private KeyController keyController;
+	
+	public SlideViewerFrame(String title, Presentation presentation, MenuController menuController, KeyController keyController) {
+<span class="nc" id="L34">		super(title);</span>
+<span class="nc" id="L35">		this.menuController = menuController;</span>
+<span class="nc" id="L36">		this.keyController = keyController;</span>
+<span class="nc" id="L37">		this.setupKeyController(presentation);</span>
+<span class="nc" id="L38">		this.setupMenuController(presentation);</span>
+<span class="nc" id="L39">		SlideViewerComponent slideViewerComponent = new SlideViewerComponent(presentation, this);</span>
+<span class="nc" id="L40">		presentation.setShowView(slideViewerComponent);</span>
+<span class="nc" id="L41">		setupWindow(slideViewerComponent, presentation);</span>
+<span class="nc" id="L42">	}</span>
+
+	private void setupKeyController(Presentation presentation) {
+		// responsible for ensuring that the key controller knows which commands to expect
+		// if there are any new presentation-related keyboard commands, put them here
+<span class="nc" id="L47">		NextSlideCommand next = new NextSlideCommand(presentation);</span>
+<span class="nc" id="L48">		PreviousSlideCommand prev =  new PreviousSlideCommand(presentation);</span>
+<span class="nc" id="L49">		QuitCommand quit = new QuitCommand();</span>
+		// Next Slide shortcuts
+<span class="nc" id="L51">		keyController.addCommand(KeyEvent.VK_DOWN, next);</span>
+<span class="nc" id="L52">		keyController.addCommand(KeyEvent.VK_PAGE_DOWN, next);</span>
+<span class="nc" id="L53">		keyController.addCommand(KeyEvent.VK_ENTER, next);</span>
+<span class="nc" id="L54">		keyController.addCommand('+', next);</span>
+		// Previous slide shortcuts
+<span class="nc" id="L56">		keyController.addCommand(KeyEvent.VK_UP, prev);</span>
+<span class="nc" id="L57">		keyController.addCommand(KeyEvent.VK_PAGE_UP, prev);</span>
+<span class="nc" id="L58">		keyController.addCommand('-', prev);</span>
+		// Quit Command shortcuts
+<span class="nc" id="L60">		keyController.addCommand('q', quit);</span>
+<span class="nc" id="L61">		keyController.addCommand('Q', quit);</span>
+<span class="nc" id="L62">	}</span>
+
+	private void setupMenuController(Presentation presentation) {
+		// Commands
+<span class="nc" id="L66">		OpenFileCommand openFile = new OpenFileCommand(this, presentation);</span>
+<span class="nc" id="L67">		NewFileCommand newFile = new NewFileCommand(this, presentation);</span>
+<span class="nc" id="L68">		SaveFileCommand saveFile = new SaveFileCommand(this, presentation);</span>
+<span class="nc" id="L69">		QuitCommand quit = new QuitCommand();</span>
+<span class="nc" id="L70">		NextSlideCommand nextSlide = new NextSlideCommand(presentation);</span>
+<span class="nc" id="L71">		PreviousSlideCommand prevSlide = new PreviousSlideCommand(presentation);</span>
+<span class="nc" id="L72">		GotoSlideCommand gotoSlide = new GotoSlideCommand(this, presentation);</span>
+<span class="nc" id="L73">		AboutBoxCommand aboutBox = new AboutBoxCommand(this, presentation);</span>
+		// Command Binds
+<span class="nc" id="L75">		this.menuController.bindMenuItem(&quot;Open&quot;, openFile);</span>
+<span class="nc" id="L76">		this.menuController.bindMenuItem(&quot;New&quot;, newFile);</span>
+<span class="nc" id="L77">		this.menuController.bindMenuItem(&quot;Save&quot;, saveFile);</span>
+<span class="nc" id="L78">		this.menuController.bindMenuItem(&quot;Exit&quot;, quit);</span>
+<span class="nc" id="L79">		this.menuController.bindMenuItem(&quot;Next&quot;, nextSlide);</span>
+<span class="nc" id="L80">		this.menuController.bindMenuItem(&quot;Prev&quot;, prevSlide);</span>
+<span class="nc" id="L81">		this.menuController.bindMenuItem(&quot;Go to&quot;, gotoSlide);</span>
+<span class="nc" id="L82">		this.menuController.bindMenuItem(&quot;About&quot;, aboutBox);</span>
+<span class="nc" id="L83">	}</span>
+
+
+// Setup GUI
+	public void setupWindow(SlideViewerComponent 
+			slideViewerComponent, Presentation presentation) {
+<span class="nc" id="L89">		setTitle(JABTITLE);</span>
+<span class="nc" id="L90">		addWindowListener(new WindowAdapter() {</span>
+				public void windowClosing(WindowEvent e) {
+<span class="nc" id="L92">					System.exit(0);</span>
+<span class="nc" id="L93">				}</span>
+			});
+<span class="nc" id="L95">		getContentPane().add(slideViewerComponent);</span>
+<span class="nc" id="L96">		addKeyListener(this.keyController); // add a controller</span>
+<span class="nc" id="L97">		setMenuBar(this.menuController);	// add another controller</span>
+<span class="nc" id="L98">		setSize(new Dimension(WIDTH, HEIGHT)); // Same sizes as Slide has.</span>
+<span class="nc" id="L99">		setVisible(true);</span>
+<span class="nc" id="L100">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
