@@ -24,7 +24,7 @@ jobs:
 
       - name: Get current version
         id: get_version
-        run: echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+        run: echo "VERSION=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_ENV
 
       - name: Create GitHub Release
         id: create_release

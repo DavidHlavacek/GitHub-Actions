@@ -28,7 +28,7 @@ import java.io.IOException;
 public class JabberPoint {
 	protected static final String IOERR = "IO Error: ";
 	protected static final String JABERR = "Jabberpoint Error ";
-	protected static final String JABVERSION = "Jabberpoint 1.6 - OU version";
+	protected static final String JABVERSION = "Jabberpoint 1.6.0 - OU version";
 
 	/** The main program */
 	public static void main(String argv[]) {
