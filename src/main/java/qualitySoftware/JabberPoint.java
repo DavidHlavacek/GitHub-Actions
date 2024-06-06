@@ -12,7 +12,7 @@ import javax.swing.JOptionPane;
 import java.io.IOException;
 
 /** JabberPoint Main Programma
- * <p>This program is distributed under the terms of the accompanying
+ * <p>This program is distributed under the terms of the accompanyings
  * COPYRIGHT.txt file (which is NOT the GNU General Public License).
  * Please read it. Your use of the software constitutes acceptance
  * of the terms in the COPYRIGHT.txt file.</p>
